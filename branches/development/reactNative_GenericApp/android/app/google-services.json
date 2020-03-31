@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "884658093425",
+    "firebase_url": "https://genericapp-43cd5.firebaseio.com",
+    "project_id": "genericapp-43cd5",
+    "storage_bucket": "genericapp-43cd5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:884658093425:android:9f465b9b809a6000938ad0",
+        "android_client_info": {
+          "package_name": "com.alfain.alfaingenericapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "884658093425-rpb3fvbod9auo18feeva0jlh4dea6lhc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDu2wDUqAATNpR5GIiRLx59Lu1itdfSBBE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "884658093425-rpb3fvbod9auo18feeva0jlh4dea6lhc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,279 @@
+doctype html
+html(lang='en', xmlns='http://www.w3.org/1999/xhtml', xmlns:v='urn:schemas-microsoft-com:vml', xmlns:o='urn:schemas-microsoft-com:office:office')
+  head
+    meta(charset='utf-8')
+    // utf-8 works for most cases
+    meta(name='viewport', content='width=device-width')
+    // Forcing initial-scale shouldn't be necessary
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    // Use the latest (edge) version of IE rendering engine
+    meta(name='x-apple-disable-message-reformatting')
+    // Disable auto-scale in iOS 10 Mail entirely
+    title
+    // The title tag shows in email notifications, like Android 4.4.
+    // Web Font / @font-face : BEGIN
+    // NOTE: If web fonts are not required, lines 10 - 27 can be safely removed.
+    // Desktop Outlook chokes on web font references and defaults to Times New Roman, so we force a safe fallback font.
+    // [if mso] <!
+    link(href='https://fonts.googleapis.com/css?family=Varela+Round', rel='stylesheet')
+    style.
+      * {
+      font-family: 'Varela Round', sans-serif;
+      }
+    // [endif]
+    // All other clients get the webfont reference; some will render the font and others will silently fail to the fallbacks. More on that here: http://stylecampaign.com/blog/2015/02/webfont-support-in-email/
+    // [if !mso] <!
+    // insert web font reference, eg: <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+    // <![endif]
+    // Web Font / @font-face : END
+    // CSS Reset : BEGIN
+    style.
+      /* What it does: Remove spaces around the email design added by some email clients. */
+      /* Beware: It can remove the padding / margin and add a background color to the compose a reply window. */
+      html,
+      body {
+      margin: 0 auto !important;
+      padding: 0 !important;
+      height: 100% !important;
+      width: 100% !important;
+      }
+      /* What it does: Stops email clients resizing small text. */
+      * {
+      -ms-text-size-adjust: 100%;
+      -webkit-text-size-adjust: 100%;
+      }
+      /* What it does: Centers email on Android 4.4 */
+      div[style*="margin: 16px 0"] {
+      margin: 0 !important;
+      }
+      /* What it does: Stops Outlook from adding extra spacing to tables. */
+      table,
+      td {
+      mso-table-lspace: 0pt !important;
+      mso-table-rspace: 0pt !important;
+      }
+      /* What it does: Fixes webkit padding issue. Fix for Yahoo mail table alignment bug. Applies table-layout to the first 2 tables then removes for anything nested deeper. */
+      table {
+      border-spacing: 0 !important;
+      border-collapse: collapse !important;
+      table-layout: fixed !important;
+      margin: 0 auto !important;
+      }
+      table table table {
+      table-layout: auto;
+      }
+      /* What it does: Uses a better rendering method when resizing images in IE. */
+      img {
+      -ms-interpolation-mode: bicubic;
+      }
+      /* What it does: A work-around for email clients meddling in triggered links. */
+      *[x-apple-data-detectors],
+      /* iOS */
+      .unstyle-auto-detected-links *,
+      .aBn {
+      border-bottom: 0 !important;
+      cursor: default !important;
+      color: inherit !important;
+      text-decoration: none !important;
+      font-size: inherit !important;
+      font-family: inherit !important;
+      font-weight: inherit !important;
+      line-height: inherit !important;
+      }
+      /* What it does: Prevents Gmail from displaying a download button on large, non-linked images. */
+      .a6S {
+      display: none !important;
+      opacity: 0.01 !important;
+      }
+      /* If the above doesn't work, add a .g-img class to any image in question. */
+      img.g-img+div {
+      display: none !important;
+      }
+      /* What it does: Prevents underlining the button text in Windows 10 */
+      .button-link {
+      text-decoration: none !important;
+      }
+      /* What it does: Removes right gutter in Gmail iOS app: https://github.com/TedGoas/Cerberus/issues/89  */
+      /* Create one of these media queries for each additional viewport size you'd like to fix */
+      /* iPhone 4, 4S, 5, 5S, 5C, and 5SE */
+      @media only screen and (min-device-width: 320px) and (max-device-width: 374px) {
+      .email-container {
+      min-width: 320px !important;
+      }
+      }
+      /* iPhone 6, 6S, 7, 8, and X */
+      @media only screen and (min-device-width: 375px) and (max-device-width: 413px) {
+      .email-container {
+      min-width: 375px !important;
+      }
+      }
+      /* iPhone 6+, 7+, and 8+ */
+      @media only screen and (min-device-width: 414px) {
+      .email-container {
+      min-width: 414px !important;
+      }
+      }
+    // CSS Reset : END
+    // Reset list spacing because Outlook ignores much of our inline CSS.
+    //if mso
+      style(type='text/css').
+        ul,
+        ol {
+        margin: 0 !important;
+        }
+        li {
+        margin-left: 30px !important;
+        }
+        li.list-item-first {
+        margin-top: 0 !important;
+        }
+        li.list-item-last {
+        margin-bottom: 10px !important;
+        }
+    // Progressive Enhancements : BEGIN
+    style.
+      /* What it does: Hover styles for buttons */
+      .button-td,
+      .button-a {
+      transition: all 100ms ease-in;
+      }
+      .button-td-primary:hover,
+      .button-a-primary:hover {
+      background: rgb(26, 135, 182) !important;
+      border-color: rgb(26, 135, 182) !important;
+      }
+      /* Media Queries */
+      @media screen and (max-width: 600px) {
+      /* What it does: Adjust typography on small screens to improve readability */
+      .email-container p {
+      font-size: 17px !important;
+      }
+      }
+    // Progressive Enhancements : END
+    // What it does: Makes background images in 72ppi Outlook render at correct size.
+    //if gte mso 9
+      xml
+        o:officedocumentsettings
+          o:allowpng
+            o:pixelsperinch 96
+  //
+    The email background color (#222222) is defined in three places:
+    1. body tag: for most email clients
+    2. center tag: for Gmail and Inbox mobile apps and web versions of Gmail, GSuite, Inbox, Yahoo, AOL, Libero, Comcast, freenet, Mail.ru, Orange.fr
+    3. mso conditional: For Windows 10 Mail
+  body(width='100%', style='margin: 0; mso-line-height-rule: exactly; background-color: #FFF;')
+    center(style='width: 100%; background-color: #FFF; text-align: left;')
+      //if mso | IE
+        table(role='presentation', border='0', cellpadding='0', cellspacing='0', width='100%', style='background-color: #FFF;')
+          tr
+            td
+      // Visually Hidden Preheader Text : BEGIN
+      div(style="display: none; font-size: 1px; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all; font-family: 'Varela Round', sans-serif;;")
+        | (Optional) This text will appear in the inbox preview, but not the email body. It can be used to supplement the email subject
+        | line or even summarize the email's contents. Extended text preheaders (~490 characters) seems like a better UX
+        | for anyone using a screenreader or voice-command apps like Siri to dictate the contents of an email. If this
+        | text is not included, email clients will automatically populate it using the text (including image alt text)
+        | at the start of the email's body.
+      // Visually Hidden Preheader Text : END
+      // Create white space after the desired preview text so email clients don’t pull other distracting text into the inbox preview. Extend as necessary.
+      // Preview Text Spacing Hack : BEGIN
+      div(style="display: none; font-size: 1px; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all; font-family: 'Varela Round', sans-serif;;")
+        | ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌
+      // Preview Text Spacing Hack : END
+      //
+        Set the email width. Defined in two places:
+        1. max-width for all clients except Desktop Windows Outlook, allowing the email to squish on narrow but never go wider than 600px.
+        2. MSO tags for Desktop Windows Outlook enforce a 600px width.
+      .email-container(style='max-width: 700px; margin: 0 auto;')
+        //if mso
+          table(align='center', role='presentation', cellspacing='0', cellpadding='0', border='0', width='600')
+            tr
+              td
+        // Email Body : BEGIN
+        table(align='center', role='presentation', cellspacing='0', cellpadding='0', border='0', width='100%', style='margin: 0 auto;')
+          // Email Header : BEGIN
+          tr
+            td(style='padding: 20px 0; text-align: center')
+              h4(width='200', height='50', alt='alt_text', border='0', style='height: auto; line-height: 15px; font-weight: 500; color: grey') Hi, Welcome to eStore. Congratulations on placing a new order
+              // <img src="http://placehold.it/200x50" width="200" height="50" alt="alt_text" border="0" style="height: auto; background: #dddddd; font-family: 'Varela Round', sans-serif;; font-size: 15px; line-height: 15px; color: #555555;">
+          // Email Header : END
+          // Hero Image, Flush : BEGIN
+          tr
+            td(style='background-color: #ffffff;')
+              h1(style='font-weight: 500; color: #29ABE2; text-align: center ') WEB GEN e-STORE
+              div(style='text-align: center')
+                img(src='http://hassanamjad.com/demo/tick.png')
+          // Hero Image, Flush : END
+          // 1 Column Text + Button : BEGIN
+          tr
+            td(style='background-color: #ffffff;')
+              table(role='presentation', cellspacing='0', cellpadding='0', border='0', width='100%')
+                tr
+                  td(style="padding: 20px; font-family: 'Varela Round', sans-serif;; font-size: 15px; line-height: 20px; color: #555555;")
+                    h1(style="margin: 0 0 10px 0; font-family: 'Varela Round', sans-serif;; font-size: 25px; line-height: 30px; color:gray; font-weight: normal; text-align: center") Congratulations!
+                    h1(style="margin: 0 0 10px 0; font-family: 'Varela Round', sans-serif;; font-size: 25px; line-height: 30px; color:gray; font-weight: normal; text-align: center") Your order has been placed.
+                tr
+                  td(style="padding-top: 10px; font-family: 'Varela Round', sans-serif;; font-size: 15px; line-height: 20px; color: #555555;")
+                    h3(style="margin: 0 0 10px 0; font-family: 'Varela Round', sans-serif; line-height: 30px; color:gray; font-weight: normal; text-align: center")
+                      span(style='color: orange') Order ID: #{user.orderID}
+                tr
+                  td(style="padding-top: 30px; font-family: 'Varela Round', sans-serif;; font-size: 15px; line-height: 20px; color: #555555;")
+                    h2(style="margin: 0 0 10px 0; font-family: 'Varela Round', sans-serif; line-height: 30px; color:gray; font-weight: normal; text-align: center")
+                      
+                      if (user.AccountStatus == 'created')
+                        | your Account Created, Detail is Given here
+                        b User: 
+                        | #{user.customerEmail}
+                      else
+                        - var email = ""+user.customerEmail
+                        //- | Login to your account for further details , 
+                        //- .button-td.button-td-primary(style="border-radius: 2px; background: #29ABE2; width: '200px'")
+                        //-   a.button-a.button-a-primary(href='http://localhost:3000/customerlogin?email='+email, style="background:#29ABE2; border: 1px solid #29ABE2; font-family: 'Varela Round', sans-serif;; font-size: 15px; line-height: 15px; text-decoration: none; padding: 13px 17px; display: block; border-radius: 4px;")
+                        //-     span.button-link(style="color:#ffffff") LOGIN
+                        
+
+
+                tr
+                  td(style="padding-top: 30px; font-family: 'Varela Round', sans-serif;; font-size: 15px; line-height: 20px; color: #555555;")
+                    h2(style="margin: 0 0 10px 0; font-family: 'Varela Round', sans-serif; line-height: 30px; color:gray; font-weight: normal; text-align: center")
+                      | If you have any queries about your order contact us at
+                tr
+                  td(style='padding: 20px;')
+                    // Button : BEGIN
+                    table(align='center', role='presentation', cellspacing='0', cellpadding='0', border='0', style='margin: auto;')
+                      tr
+                        td(style="padding-top: 10px; font-family: 'Varela Round', sans-serif;; font-size: 15px; line-height: 20px; color: #555555;")
+                          h3(style="margin: 0 0 0 0; font-family: 'Varela Round', sans-serif; line-height: 30px; color:gray; font-weight: normal; text-align: center")
+                            span(style='color: orange') Phone: +1 555 555 555
+                        //
+                          <td class="button-td button-td-primary" style="border-radius: 2px; background: #29ABE2;">
+                          <a class="button-a button-a-primary" href="https://google.com/" style="background:#29ABE2; border: 1px solid #29ABE2; font-family: 'Varela Round', sans-serif;; font-size: 15px; line-height: 15px; text-decoration: none; padding: 13px 17px; display: block; border-radius: 4px;">
+                          <span class="button-link" style="color:#ffffff">MANAGE STORE</span>
+                          </a>
+                          </td>
+                      tr
+                        td(style="padding-top: 0px; font-family: 'Varela Round', sans-serif;; font-size: 15px; line-height: 20px; color: #555555;")
+                          h3(style="margin: 0 0 0 0; font-family: 'Varela Round', sans-serif; line-height: 30px; color:gray; font-weight: normal; text-align: center")
+                            span(style='color: orange') Email: info@webgenestore.com
+                    // Button : END
+                tr
+                  td(style="padding-top: 20px; font-family: 'Varela Round', sans-serif;; font-size: 15px; line-height: 20px; color: #555555;")
+                    h2(style="margin: 0 0 10px 0; font-family: 'Varela Round', sans-serif; line-height: 30px; color:gray; font-weight: normal; text-align: center")
+                      | Thanks
+                      br
+                      |  Team NX3 eStore
+          // 1 Column Text + Button : END
+          // 2 Even Columns : BEGIN
+          // Full Bleed Background Section : END
+          //if mso | IE
+
+
+
+//- doctype transitional
+//- html
+//- head
+//-   meta(http-equiv = 'Content-Type', content = 'text/html; charset=UTF-8')
+//-   title= subject
+//-   body
+//-   h1.h1 Hi #{user.customerName} , your order is placed ,below are Details
+//-     b #{user.customerName} , b #{user.orderID} ,b #{user.deliveryTime}
