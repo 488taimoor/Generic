@@ -1,265 +1,282 @@
-import React, { Component } from 'react';
-import { View, Image, Text, SafeAreaView } from 'react-native';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import React, { Component, Fragment } from "react";
+import {
+  SafeAreaView,
+  StyleSheet,
+  FlatList,
+  View,
+  Text,
+  TouchableOpacity,
+  Modal
+} from "react-native";
+// import InputSearch from './InputSearch';
+import InputSearch from "./InputSearch";
+import { FilterServer } from "./FilterServer";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import FontSize from "./FontSize";
+import Colors from "./Colors";
+export default class GooglePlaces extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      searchText: "",
+      list: [],
+      modalVisible: false,
+      NearYouLocation: {},
+      selectedValue: "Choose Location",
+      selectedId: null,
+      key: 'AIzaSyDTxaRRLvASzHrTZ_Dj_DIV2LRe0f9TNkE'
+    };
+    this.setListofPlaces = this.setListofPlaces.bind(this);
+  }
 
-
-const homePlace = { description: 'Home', geometry: { location: { lat: 48.8152937, lng: 2.4597668 } } };
-const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818, lng: 2.2940881 } } };
-class GooglePlaces extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            initialPosition: {
-                latitude: 0,
-                longitude: 0,
-                latitudeDelta: 0,
-                longitudeDelta: 0
-            },
+  UNSAFE_componentWillMount() {
+    if (
+      JSON.stringify(this.props.NearYouLocation) !==
+      JSON.stringify(this.state.NearYouLocation)
+    ) {
+      if (this.props.NearYouLocation) {
+        if (this.props.NearYouLocation != this.state.NearYouLocation) {
+          const searchText =
+            this.props.NearYouLocation.city +
+            ", " +
+            this.props.NearYouLocation.country;
+          (this.state.NearYouLocation = this.props.NearYouLocation),
+            (this.state.searchText = searchText),
+            (this.state.selectedValue = searchText);
         }
+      }
     }
-    render() {
-        console.log('hello')
-        return (
-            <SafeAreaView style={{ alignItems: 'center', justifyContent: 'center' }}>
-                {/* <GooglePlacesAutocomplete
-                    placeholder='Search'
-                    minLength={2} // minimum length of text to search
-                    autoFocus={false}
-                    returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
-                    listViewDisplayed='auto'    // true/false/undefined
-                    fetchDetails={true}
-                    renderDescription={row => row.description} // custom description render
-                    onPress={(data, details = null) => { // 'details' is provided when fetchDetails = true
-                        console.log('data :', data, 'details :', details);
+  }
+  modalHandler = () => {
+    this.setState({ modalVisible: !this.state.modalVisible });
+  };
+
+  selectedValueHandler = (selectedValue, selectedId, item) => {
+    console.log('this is item', item)
+    fetch("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + selectedId + "&key=" + this.state.key)
+      .then((response) => response.json())
+      .then((responseJson) => {
+        console.log('this is response', responseJson)
+
+        this.setState({ selectedValue, selectedId });
+        // alert(selectedId)
+        var data = {
+          input: selectedId,
+          modalHandler: this.modalHandler,
+          selectedValue:selectedValue,
+          lat:responseJson.result.geometry.location.lat,
+          lng:responseJson.result.geometry.location.lng
+        };
+        this.props.SearchYourLocation(data);
+        this.modalHandler();
+        this.clearHandler();
+
+      }).catch(err => {
+        console.log('this is err', err)
+      })
+   
+  };
+  searchHandler = searchText => {
+    var data = {
+      input: searchText,
+      setListofPlaces: this.setListofPlaces
+    };
+    FilterServer.AutoCompletePlace(data);
+    this.setState({ searchText });
+  };
+  setListofPlaces(places) {
+    this.setState({
+      list: places
+    });
+  }
+  clearHandler = () => {
+    this.setState({
+      searchText: "",
+      list: []
+    });
+  };
+  render() {
+    const { selectedValue, modalVisible, selectedId, searchText } = this.state;
+    // ! Destructure styles...
+    const {
+      containerStyle,
+      inputContainerStyle1,
+      filedContainerStyle,
+      textStyle,
+      btnContainerStyle,
+      btnTextStyle,
+      modalContainerStyle,
+      boxContainerStyle,
+      closeTextStyle,
+      closeTextTouchStyle
+    } = styles;
+    // !
+
+    return (
+      <Fragment>
+        <SafeAreaView>
+          <TouchableOpacity
+            style={[btnContainerStyle,{height: 48,
+              fontSize: 15,
+              paddingHorizontal: 8,
+              color: 'black',
+              backgroundColor: '#ced1d6',
+              borderRadius: 10}]}
+            onPress={this.modalHandler}
+          >
+            {/* <Icon name="room" size={20} color="#909090" /> */}
+            <Text style={[FontSize.cardFontSize, btnTextStyle]}>
+              {selectedValue.length > 45
+                ? selectedValue.substring(0, 45) + "..."
+                : selectedValue}
+            </Text>
+            {/* <Icon name="keyboard-arrow-down" size={26} color="#000" /> */}
+          </TouchableOpacity>
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              this.modalHandler();
+            }}
+          >
+            <View style={modalContainerStyle}>
+              <SafeAreaView style={boxContainerStyle}>
+                <View style={containerStyle}>
+                  <TouchableOpacity
+                    style={closeTextTouchStyle}
+                    onPress={this.modalHandler}
+                  >
+                    <Text style={closeTextStyle}>Cancel</Text>
+                  </TouchableOpacity>
+                  <InputSearch
+                    placeholder="Search"
+                    iconName="search"
+                    iconSize={18}
+                    iconColor="#707070"
+                    placeholderTextColor="#707070"
+                    inputTextColor="#000"
+                    autoFocus={true}
+                    inputValue={searchText}
+                    inputContainerStyle={inputContainerStyle1}
+                    onChange={this.searchHandler}
+                    onPress={this.clearHandler}
+                  />
+                  <Text
+                    style={{
+                      color: "red",
+                      marginTop: 20,
+                      display: this.state.searchText === "" ? "flex" : "none"
                     }}
+                  >
+                    Please Enter Location
+                  </Text>
 
-                    getDefaultValue={() => ''}
-
-                    query={{
-                        // available options: https://developers.google.com/places/web-service/autocomplete
-                        key: 'AIzaSyAJ3qQgDeaV1a_Q6-bB4kgZm4HnXMgbjfE',
-                        language: 'en', // language of the results
-                        types: '(cities)' // default: 'geocode'
-                    }}
-
-                    styles={{
-                        textInputContainer: {
-                            width: '100%'
-                        },
-                        description: {
-                            fontWeight: 'bold'
-                        },
-                        predefinedPlacesDescription: {
-                            color: '#1faadb'
+                  <FlatList
+                    style={{ marginTop: 20 }}
+                    data={this.state.list}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        style={filedContainerStyle}
+                        onPress={() =>
+                          this.selectedValueHandler(
+                            item.description,
+                            item.place_id,
+                            item
+                          )
                         }
-                    }}
-
-                    currentLocation={true} // Will add a 'Current location' button at the top of the predefined places list
-                    currentLocationLabel="Current location"
-                    nearbyPlacesAPI='GooglePlacesSearch' // Which API to use: GoogleReverseGeocoding or GooglePlacesSearch
-                    GoogleReverseGeocodingQuery={{
-                        // available options for GoogleReverseGeocoding API : https://developers.google.com/maps/documentation/geocoding/intro
-                    }}
-                    GooglePlacesSearchQuery={{
-                        // available options for GooglePlacesSearch API : https://developers.google.com/places/web-service/search
-                        rankby: 'distance',
-                        types: 'food'
-                    }}
-
-                    filterReverseGeocodingByTypes={['locality', 'administrative_area_level_3']} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
-                    predefinedPlaces={[homePlace, workPlace]}
-
-                    debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
-                    renderLeftButton={() => <Text>BTN</Text>}
-                    renderRightButton={() => <Text>Custom text after the input</Text>}
-                /> */}
-                {/* <GooglePlacesAutocomplete
-                    placeholder='Search'
-                    minLength={2} // minimum length of text to search
-                    autoFocus={false}
-                    returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
-                    keyboardAppearance={'light'} // Can be left out for default keyboardAppearance https://facebook.github.io/react-native/docs/textinput.html#keyboardappearance
-                    listViewDisplayed={false}    // true/false/undefined
-                    fetchDetails={true}
-                    renderDescription={row => row.description} // custom description render
-                    onPress={(data, details = null) => { // 'details' is provided when fetchDetails = true
-                        console.log(data, details);
-                    }}
-
-                    getDefaultValue={() => ''}
-
-                    query={{
-                        // available options: https://developers.google.com/places/web-service/autocomplete
-                        key: 'AIzaSyDTxaRRLvASzHrTZ_Dj_DIV2LRe0f9TNkE',
-                        language: 'en', // language of the results
-                        types: '(cities)' // default: 'geocode'
-                    }}
-
-                    styles={{
-                        textInputContainer: {
-                            width: '100%'
-                        },
-                        description: {
-                            fontWeight: 'bold'
-                        },
-                        predefinedPlacesDescription: {
-                            color: '#1faadb'
-                        }
-                    }}
-
-                    currentLocation={true} // Will add a 'Current location' button at the top of the predefined places list
-                    currentLocationLabel="Current location"
-                    nearbyPlacesAPI='GooglePlacesSearch' // Which API to use: GoogleReverseGeocoding or GooglePlacesSearch
-                    GoogleReverseGeocodingQuery={{
-                        // available options for GoogleReverseGeocoding API : https://developers.google.com/maps/documentation/geocoding/intro
-                    }}
-                    GooglePlacesSearchQuery={{
-                        // available options for GooglePlacesSearch API : https://developers.google.com/places/web-service/search
-                        rankby: 'distance',
-                        type: 'cafe'
-                    }}
-
-                    GooglePlacesDetailsQuery={{
-                        // available options for GooglePlacesDetails API : https://developers.google.com/places/web-service/details
-                        fields: 'formatted_address',
-                    }}
-
-                    filterReverseGeocodingByTypes={['locality', 'administrative_area_level_3']} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
-                    predefinedPlaces={[homePlace, workPlace]}
-
-                    debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
-                    renderLeftButton={() => <Text>BTN</Text>}
-                    renderRightButton={() => <Text>Custom text after the input</Text>}
-                /> */}
-                <View style={{ borderWidth: 2, borderColor: 'green', width: '100%', position: 'relative', height: 60, zIndex: 2 }}>
-                    <View style={{ position: 'absolute', flexDirection: 'row', backgroundColor: 'gold', borderWidth: 1, flex: 1 }}>
-                        <GooglePlacesAutocomplete
-                            placeholder='Search'
-                            minLength={2} // minimum length of text to search
-                            autoFocus={false}
-                            returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
-                            listViewDisplayed='auto' // true/false/undefined
-                            fetchDetails={true}
-                            renderDescription={row => row.description} // custom description render
-                            onPress={(data, details = null) => { // 'details' is provided when fetchDetails = true
-                                console.log("myplace1", details.geometry.location)
-                                console.log("Data :", data)
-                                console.log("Details", details)
-                                // var searchRegion = {
-                                //     latitude: details.geometry.location.lat,
-                                //     longitude: details.geometry.location.lng,
-                                //     latitudeDelta: LATITUDE_DELTA,
-                                //     longitudeDelta: LONGITUDE_DELTA
-
-                                // }
-                                // this.setState({
-                                //     initialPosition: searchRegion
-
-                                // })
-                            }}
-
-                            getDefaultValue={() => ''}
-
-                            query={{
-                                // available options: https://developers.google.com/places/web-service/autocomplete
-                                // key: 'AIzaSyAJ3qQgDeaV1a_Q6-bB4kgZm4HnXMgbjfE',
-                                key: 'AIzaSyDTxaRRLvASzHrTZ_Dj_DIV2LRe0f9TNkE',
-                                language: 'en', // language of the results
-                                types: '(cities)' // default: 'geocode'
-                            }}
-
-                            styles={{
-                                textInputContainer: {
-                                    width: '100%'
-                                },
-                                description: {
-                                    fontWeight: 'bold'
-                                },
-                                predefinedPlacesDescription: {
-                                    color: '#1faadb'
-                                }
-                            }}
-
-
-                            nearbyPlacesAPI='GooglePlacesSearch' // Which API to use: GoogleReverseGeocoding or GooglePlacesSearch
-                            currentLocation={false}
-                            GooglePlacesSearchQuery={{
-                                // available options for GooglePlacesSearch API : https://developers.google.com/places/web-service/search
-                                rankby: 'distance',
-                                types: 'food'
-                            }}
-                        />
-                    </View>
+                      >
+                        <Text
+                          style={[
+                            textStyle,
+                            {
+                              color:
+                                item.id === selectedId ? "#2C4BFC" : "#909090"
+                            }
+                          ]}
+                        >
+                          {item.description}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                    keyExtractor={item => item.id}
+                  />
                 </View>
-                {/* <GooglePlacesAutocomplete
-                placeholder='Search'
-                minLength={2} // minimum length of text to search
-                autoFocus={false}
-                fetchDetails={true}
-                styles={{
-                    textInputContainer: {
-                        backgroundColor: 'rgba(0,0,0,0)',
-                        borderTopWidth: 0,
-                        borderBottomWidth: 0
-                    },
-                    textInput: {
-                        marginLeft: 0,
-                        marginRight: 0,
-                        height: 38,
-                        color: '#5d5d5d',
-                        fontSize: 16
-                    },
-                    predefinedPlacesDescription: {
-                        color: '#1faadb'
-                    },
-                }}
-                onPress={(data, details = null) => { // 'details' is provided when fetchDetails = true
-                    console.log(data);
-                    console.log(details);
-                }}
-                getDefaultValue={() => {
-                    return ''; // text input default value
-                }}
-                query={{
-                    // available options: https://developers.google.com/places/web-service/autocomplete
-                    key: 'YOUR API KEY',
-                    language: 'en', // language of the results
-                    types: '(cities)', // default: 'geocode'
-                }}
-                styles={{
-                    description: {
-                        fontWeight: 'bold',
-                    },
-                    predefinedPlacesDescription: {
-                        color: '#1faadb',
-                    },
-                }}
-
-                currentLocation={true} // Will add a 'Current location' button at the top of the predefined places list
-                currentLocationLabel="Current location"
-                nearbyPlacesAPI='GooglePlacesSearch' // Which API to use: GoogleReverseGeocoding or GooglePlacesSearch
-                GoogleReverseGeocodingQuery={{
-                    // available options for GoogleReverseGeocoding API : https://developers.google.com/maps/documentation/geocoding/intro
-                }}
-                GooglePlacesSearchQuery={{
-                    // available options for GooglePlacesSearch API : https://developers.google.com/places/web-service/search
-                    rankby: 'distance',
-                    types: 'food',
-                }}
-                GooglePlacesDetailsQuery={{
-                    // available options for GooglePlacesDetails API : https://developers.google.com/places/web-service/details
-                    fields: 'formatted_address',
-                }}
-
-                filterReverseGeocodingByTypes={['locality', 'administrative_area_level_3']} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
-
-                predefinedPlaces={[homePlace, workPlace]}
-
-                predefinedPlacesAlwaysVisible={true}
-            /> */}
-            </SafeAreaView>
-        );
-    }
+              </SafeAreaView>
+            </View>
+          </Modal>
+        </SafeAreaView>
+      </Fragment>
+    );
+  }
 }
 
-export default GooglePlaces
+const styles = StyleSheet.create({
+  btnContainerStyle: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderColor,
+    padding: 16,
+    flexDirection: "row",
+    borderRadius: 5
+  },
+  btnTextStyle: {
+    // fontFamily: Fonts.EncodeSansRegular,
+    // fontSize: 18,
+    color: Colors.primaryColor,
+    // marginLeft: 16,
+    flex: 1
+  },
+  modalContainerStyle: {
+    // padding: 20,
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)"
+    // justifyContent: "center",
+    // alignItems: 'center'
+  },
+  containerStyle: {
+    flex: 1,
+    padding: 20
+  },
+  inputContainerStyle1: {
+    ...Platform.select({
+      ios: {
+        paddingVertical: 10
+      },
+      android: {
+        paddingVertical: 5
+      }
+    }),
+    borderBottomWidth: 0,
+    paddingHorizontal: 10,
+    // paddingVertical: 10,
+    borderRadius: 5,
+    // marginHorizontal: 20,
+    backgroundColor: "rgba(142, 142, 147, 0.1)"
+  },
+  filedContainerStyle: {
+    borderBottomWidth: 0.5,
+    paddingBottom: 10,
+    marginTop: 16,
+    borderColor: "#909090"
+  },
+  textStyle: {
+    // fontFamily: Fonts.EncodeSansRegular,
+    fontSize: 16,
+    color: "#000"
+  },
+  boxContainerStyle: {
+    // borderWidth: 1,
+    flex: 1,
+    width: "100%",
+    backgroundColor: "white"
+  },
+  closeTextTouchStyle: {
+    marginVertical: 16,
+    alignSelf: "flex-end"
+  },
+  closeTextStyle: {
+    color: "#007AFF",
+    // fontFamily: Fonts.EncodeSansRegular,
+    fontSize: 16
+  }
+});
